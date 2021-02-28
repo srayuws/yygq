@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>YYGQ site</title>
-    <link>http://localhost:1313/</link>
+    <link>https://yygq.srayu.ws/</link>
     <description>Recent content on YYGQ site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 28 Feb 2021 18:15:35 +0800</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 28 Feb 2021 18:15:35 +0800</lastBuildDate><atom:link href="https://yygq.srayu.ws/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>有一说一</title>
-      <link>http://localhost:1313/post/y1s1/</link>
+      <link>https://yygq.srayu.ws/post/y1s1/</link>
       <pubDate>Sun, 28 Feb 2021 18:15:35 +0800</pubDate>
       
-      <guid>http://localhost:1313/post/y1s1/</guid>
+      <guid>https://yygq.srayu.ws/post/y1s1/</guid>
       <description>反对就是不客观。</description>
     </item>
     
