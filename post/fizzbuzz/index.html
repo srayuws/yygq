@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>贼快的FizzBuzz - YYGQ site</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="srayuws" /><meta name="description" content="ref link: FizzBuzz – SIMD Style 周末看了个文章，大意是说Java有了SIMD了，我来教大家怎么用AVX来算FizzBuzz。 说来我第一次知道FizzBuzz还是" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.81.0 with theme even" />
+
+
+<link rel="canonical" href="https://yygq.srayu.ws/post/fizzbuzz/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="贼快的FizzBuzz" />
+<meta property="og:description" content="ref link: FizzBuzz – SIMD Style 周末看了个文章，大意是说Java有了SIMD了，我来教大家怎么用AVX来算FizzBuzz。 说来我第一次知道FizzBuzz还是" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yygq.srayu.ws/post/fizzbuzz/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2021-03-13T22:12:19&#43;08:00" />
+<meta property="article:modified_time" content="2021-03-13T22:12:19&#43;08:00" />
+
+<meta itemprop="name" content="贼快的FizzBuzz">
+<meta itemprop="description" content="ref link: FizzBuzz – SIMD Style 周末看了个文章，大意是说Java有了SIMD了，我来教大家怎么用AVX来算FizzBuzz。 说来我第一次知道FizzBuzz还是"><meta itemprop="datePublished" content="2021-03-13T22:12:19&#43;08:00" />
+<meta itemprop="dateModified" content="2021-03-13T22:12:19&#43;08:00" />
+<meta itemprop="wordCount" content="3048">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="贼快的FizzBuzz"/>
+<meta name="twitter:description" content="ref link: FizzBuzz – SIMD Style 周末看了个文章，大意是说Java有了SIMD了，我来教大家怎么用AVX来算FizzBuzz。 说来我第一次知道FizzBuzz还是"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">YYGQ site</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">YYGQ site</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">贼快的FizzBuzz</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2021-03-13 </span>
+        
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#simd">SIMD</a></li>
+    <li><a href="#net-实验">.NET 实验</a>
+      <ul>
+        <li><a href="#simple-15-vs-simple-3-5">Simple-15 vs Simple-3-5</a></li>
+        <li><a href="#simple-vs-simd">Simple vs SIMD</a></li>
+        <li><a href="#load-aligned">Load Aligned</a></li>
+        <li><a href="#simd-unroll-16">SIMD unroll 16</a></li>
+      </ul>
+    </li>
+    <li><a href="#其他">其他</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>ref link: <a href="https://www.morling.dev/blog/fizzbuzz-simd-style/">FizzBuzz – SIMD Style</a></p>
+<p>周末看了个文章，大意是说Java有了SIMD了，我来教大家怎么用AVX来算FizzBuzz。
+说来我第一次知道FizzBuzz还是在<a href="https://blog.codinghorror.com/why-cant-programmers-program/">Coding Horror</a>上面。</p>
+<p>早些年我面试实习生的时候用过几次……怎么说呢，脑子不清楚确实挺容易写出问题的。
+不过后来觉得这个题就算做出来也没啥用，反而担心第二天直接上V2EX：“XX公司面试官就这水平？是不是在侮辱我？”</p>
+<p>刚刚搜了下，甚至连LeetCode上都有这道题了。</p>
+<h1 id="simd">SIMD</h1>
+<p>先说下那个帖子里的解法。因为AVX256的宽度限制，一次只能跑8个数，而FizzBuzz的循环宽度是15，互质。
+所以老哥做了一点循环的展开，准备了一个15个模板，每个模板里有8个数。</p>
+<p>主要思想是，AVX里有一个<a href="https://software.intel.com/content/www/us/en/develop/documentation/cpp-compiler-developer-guide-and-reference/top/compiler-reference/intrinsics/intrinsics-for-intel-advanced-vector-extensions-2/intrinsics-for-blend-operations-1/mm-blend-epi32-mm256-blend-epi16-32.html">blend</a>方法，长这样：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">__m256i _mm256_blend_epi32(__m256i s1, __m256i s2, const int mask);
+</code></pre></td></tr></table>
+</div>
+</div><p>大体来说就是，按照mask里面每个bit的0或1，决定输出的8个数是来自s1或者s2中的哪一个。本质是个 if-else 操作。
+对应epi16的版本，感觉<a href="https://www.felixcloutier.com/x86/pblendw">这里 vpblendw</a>说的更清楚一些。</p>
+<p>靠这个blend运算，s1是输入的1~N的数组，s2是fizz或者buzz的对应值，mask是预先准备的对应位置是否需要出Fizz或者Buzz。
+所以如果mask有值，就出s2里的fizz或者buzz，而如果对应bit是0的话，就照抄s1。</p>
+<h1 id="net-实验">.NET 实验</h1>
+<p>Gunnar的主要内容是讲讲Java里新的SIMD接口。考虑到.NET在<a href="https://devblogs.microsoft.com/dotnet/hardware-intrinsics-in-net-core/">近期的版本</a>里也有了Intrinsics API，而更加通用的Vector API则是在<a href="https://devblogs.microsoft.com/dotnet/the-jit-finally-proposed-jit-and-simd-are-getting-married/">更早</a>就已经实现了。出于学习SIMD Intrinsics API的目的，我试着用.NET复现了一下SIMD FizzBuzz。下面是几个不同实现算法的跑分：</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th style="text-align:right">Mean</th>
+<th style="text-align:right">Error</th>
+<th style="text-align:right">StdDev</th>
+<th style="text-align:right">Median</th>
+<th style="text-align:right">Ratio</th>
+<th style="text-align:right">RatioSD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Simple_15</td>
+<td style="text-align:right">1,589.93 ns</td>
+<td style="text-align:right">31.728 ns</td>
+<td style="text-align:right">88.446 ns</td>
+<td style="text-align:right">1,553.42 ns</td>
+<td style="text-align:right">4.06</td>
+<td style="text-align:right">0.55</td>
+</tr>
+<tr>
+<td>Simple_3_5</td>
+<td style="text-align:right">1,243.74 ns</td>
+<td style="text-align:right">21.567 ns</td>
+<td style="text-align:right">16.838 ns</td>
+<td style="text-align:right">1,244.81 ns</td>
+<td style="text-align:right">3.07</td>
+<td style="text-align:right">0.43</td>
+</tr>
+<tr>
+<td>SIMD</td>
+<td style="text-align:right">397.41 ns</td>
+<td style="text-align:right">17.203 ns</td>
+<td style="text-align:right">50.724 ns</td>
+<td style="text-align:right">389.53 ns</td>
+<td style="text-align:right">1.00</td>
+<td style="text-align:right">0.00</td>
+</tr>
+<tr>
+<td>SIMD_aligned</td>
+<td style="text-align:right">417.61 ns</td>
+<td style="text-align:right">10.178 ns</td>
+<td style="text-align:right">28.874 ns</td>
+<td style="text-align:right">411.72 ns</td>
+<td style="text-align:right">1.06</td>
+<td style="text-align:right">0.16</td>
+</tr>
+<tr>
+<td>Unroll_15</td>
+<td style="text-align:right">258.90 ns</td>
+<td style="text-align:right">4.408 ns</td>
+<td style="text-align:right">5.885 ns</td>
+<td style="text-align:right">257.15 ns</td>
+<td style="text-align:right">0.65</td>
+<td style="text-align:right">0.10</td>
+</tr>
+<tr>
+<td>SIMD_Unroll_16</td>
+<td style="text-align:right">44.59 ns</td>
+<td style="text-align:right">0.799 ns</td>
+<td style="text-align:right">0.747 ns</td>
+<td style="text-align:right">44.42 ns</td>
+<td style="text-align:right">0.11</td>
+<td style="text-align:right">0.02</td>
+</tr>
+<tr>
+<td>SIMD_NoRead</td>
+<td style="text-align:right">434.46 ns</td>
+<td style="text-align:right">18.955 ns</td>
+<td style="text-align:right">55.888 ns</td>
+<td style="text-align:right">436.64 ns</td>
+<td style="text-align:right">1.11</td>
+<td style="text-align:right">0.20</td>
+</tr>
+<tr>
+<td>Unroll_16</td>
+<td style="text-align:right">453.34 ns</td>
+<td style="text-align:right">8.193 ns</td>
+<td style="text-align:right">9.753 ns</td>
+<td style="text-align:right">450.42 ns</td>
+<td style="text-align:right">1.15</td>
+<td style="text-align:right">0.19</td>
+</tr>
+</tbody>
+</table>
+<p>具体的实验设置后面慢慢说，</p>
+<p>简而言之：</p>
+<ol>
+<li>尽量避免用<strong>除法</strong>和<strong>取模</strong>。</li>
+<li>unroll 简单粗暴效果好。</li>
+<li>SIMD还挺难写的。</li>
+</ol>
+<h2 id="simple-15-vs-simple-3-5">Simple-15 vs Simple-3-5</h2>
+<p>先说一个我之前面试的时候遇到过的一个常见错误：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback"># Wrong code
+
+if       (n %  3 == 0) =&gt; Fizz
+else if  (n %  5 == 0) =&gt; Buzz
+else if  (n % 15 == 0) =&gt; FizzBuzz
+else                   =&gt; n
+</code></pre></td></tr></table>
+</div>
+</div><p>事实上这个实现是永远不可能输出“FizzBuzz”的。我怀疑很多人写成这样，是由于文本到代码的直接翻译导致的，有点类似“如果看到卖西瓜的，买一个”。</p>
+<p>一个简单的修复是把那个 %15 的版本放到最上面，变成：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback"># Simple-15
+
+if       (n % 15 == 0) =&gt; FizzBuzz
+else if  (n %  3 == 0) =&gt; Fizz
+else if  (n %  5 == 0) =&gt; Buzz
+else                   =&gt; n
+</code></pre></td></tr></table>
+</div>
+</div><p>或者按照Gunnar的做法，如果确定是3的倍数以后，多加一个5的倍数的检查：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback"># Simple-3-5
+
+if        (n % 3 == 0) 
+    if    (n % 5 == 0)   =&gt; FizzBuzz
+    else                 =&gt; Fizz  
+else if   (n % 5 == 0)   =&gt; Buzz
+else                     =&gt; n
+</code></pre></td></tr></table>
+</div>
+</div><p>其实我之前从来没想过这两种写法会有差不多25%的性能差异。不过仔细想想<code>-15</code>的版本确实要慢很多。</p>
+<p>大概一半（8/15=0.53）的数是与3，5无关的。在<code>-15</code>的版本中，他们都需要3次mod运算，而在<code>-3-5</code>中则只需要2次。对于占26%的Fizz组而言，都是2次，没有区别。而占13%的Buzz组，<code>-15</code>里是3次mod，在<code>-3-5</code>中依然是2次。最后是6%的FizzBuzz组，分别是1次和2次。</p>
+<p>综合来看，<code>-15</code>的版本中平均每个数要做2.6次mod运算，而<code>-3-5</code>中是2次。这个比例和实际跑出来的性能差距基本相同。</p>
+<h2 id="simple-vs-simd">Simple vs SIMD</h2>
+<p>这个对比，Gunnar的文章里说的挺详细了，这里就不多说了。不过似乎Gunnar的测试里，SIMD的版本是simple的4倍，而我这里只有3倍。具体原因不是很清楚。</p>
+<h2 id="load-aligned">Load Aligned</h2>
+<p>在我跑SIMD的跑分的时候，系统每次都会提示我一个类似的错误：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">// * Warnings *
+MultimodalDistribution
+  FizzBuzzBenchmark.SIMD: Default         -&gt; It seems that the distribution is bimodal (mValue = 3.65)
+
+FizzBuzzBenchmark.SIMD: DefaultJob
+Runtime = .NET Core 5.0.4 (CoreCLR 5.0.421.11614, CoreFX 5.0.421.11614), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 379.348 ns, StdErr = 4.012 ns (1.06%), N = 99, StdDev = 39.918 ns
+Min = 307.527 ns, Q1 = 348.640 ns, Median = 373.750 ns, Q3 = 406.518 ns, Max = 472.894 ns
+IQR = 57.878 ns, LowerFence = 261.823 ns, UpperFence = 493.334 ns
+ConfidenceInterval = [365.737 ns; 392.959 ns] (CI 99.9%), Margin = 13.611 ns (3.59% of Mean)
+Skewness = 0.34, Kurtosis = 2.29, MValue = 3.65
+-------------------- Histogram --------------------
+[307.146 ns ; 332.744 ns) | @@@@@@@@@@
+[332.744 ns ; 355.395 ns) | @@@@@@@@@@@@@@@@@@@@@@@
+[355.395 ns ; 377.707 ns) | @@@@@@@@@@@@@@@@@@@@
+[377.707 ns ; 386.188 ns) | @@
+[386.188 ns ; 408.839 ns) | @@@@@@@@@@@@@@@@@@@@@
+[408.839 ns ; 434.039 ns) | @@@@@@@@@@@@@@
+[434.039 ns ; 456.646 ns) | @@@@@@
+[456.646 ns ; 478.479 ns) | @@@
+---------------------------------------------------
+</code></pre></td></tr></table>
+</div>
+</div><p>思来想去，怀疑是load数据的时候，input data的地址对齐造成的问题。然后写了个自己对齐输入地址的实验。结果倒是挺出乎意料的。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-csharp" data-lang="csharp"><span class="c1">// Init:
+</span><span class="c1"></span><span class="n">input</span> <span class="p">=</span> <span class="k">new</span> <span class="kt">int</span><span class="p">[</span><span class="n">N</span><span class="p">+</span><span class="m">8</span><span class="p">];</span>
+<span class="k">fixed</span> <span class="p">(</span><span class="kt">int</span><span class="p">*</span> <span class="n">start</span> <span class="p">=</span> <span class="n">input</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">aligned</span> <span class="p">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">*)(((</span><span class="kt">ulong</span><span class="p">)</span><span class="n">start</span> <span class="p">+</span> <span class="m">31</span><span class="n">UL</span><span class="p">)</span> <span class="p">&amp;</span> <span class="p">~</span><span class="m">31</span><span class="n">UL</span><span class="p">);</span>
+    <span class="n">alignOffset</span> <span class="p">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)(</span><span class="n">aligned</span> <span class="p">-</span> <span class="n">start</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Load data:
+</span><span class="c1"></span><span class="kt">var</span> <span class="n">s1</span> <span class="p">=</span> <span class="n">Avx2</span><span class="p">.</span><span class="n">LoadAlignedVector256</span><span class="p">(</span><span class="n">start</span> <span class="p">+</span> <span class="n">alignOffset</span> <span class="p">+</span> <span class="n">i</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>其实这个代码单纯跑一两次倒是没啥问题。但是用 BenchmarkDotNet 跑的话，几乎一定会挂在<code>WorkloadJitting  1</code>这个阶段。
+一番debug以后发现，如果开始我new出来的input是不对齐的，在 load 的时候，<code>start</code>会突然神秘的变成对齐的形状。
+然后如果我继续加那个之前算的 align offset 就会 AccessViolationException。</p>
+<p>开始我还以为是GC的问题，不过在有限的几次观测之下，地址都是正好往后挪了几个位置，到最近的对齐的位置上。
+感觉进一步分析就需要找JIT的人问问了。或者用<code>Marshal.AllocHGlobal</code>再试试了。</p>
+<p>至于最上面的表里跑出来的分，是我加了一个更奇怪的workaround的结果。大体就是在<code>LoadAlignedVector256</code>之前重新算一次offset。
+不知道为什么还不如之前的<code>SIMD</code>的效果。</p>
+<h2 id="simd-unroll-16">SIMD unroll 16</h2>
+<p>这个方法是<a href="https://news.ycombinator.com/item?id=26421901">HN 上的一个评论</a>提到的方案。</p>
+<p>大意是既然你都unroll了，完全可以做的更简单一点。虽然8和15互质，但是完全可以一次写16个数，然后忽略掉最后一个数。
+按照这个思路，就是最上面的表里面跑的最快的<code>SIMD_Unroll_16</code>。具体的代码可以参考HN里的代码。</p>
+<p>参照这个思路，我又跑了几个类似的实现。</p>
+<p>比较不行的<code>Unroll_16</code>是把SIMD里SIMD相关指令直接拿掉的版本。<code>v1</code>和<code>v2</code>从Vector256改成一个Int[16]，<code>d1</code>，<code>d2</code>类似。<code>Avx.Add()</code>直接展开成16个加法运算。没想到这么菜！</p>
+<p><code>SIMD_Unroll_16</code>和原版的<code>SIMD</code>的另一个非常显著的区别是，原版需要从input data里把数据加载到xmm register里，而<code>SIMD_Unroll_16</code>是直接靠模板迭代出输入数值。所以在<code>SIMD_NoRead</code>里，我使用类似的数据加载方式，结果没想到反而更慢了。怀疑是xmm register的编排出了问题。</p>
+<p><code>Unroll-15</code>是<code>SIMD_Unroll_16</code>去掉SIMD的另一个实验：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">for (; i &lt; bound; i += 15)
+{
+    result[i]      = input[i];
+    result[i + 1]  = input[i + 1];
+    result[i + 2]  = FIZZ;
+    result[i + 3]  = input[i + 3];
+    result[i + 4]  = BUZZ;
+    result[i + 5]  = FIZZ;
+    result[i + 6]  = input[i + 6];
+    result[i + 7]  = input[i + 7];
+    result[i + 8]  = FIZZ;
+    result[i + 9]  = BUZZ;
+    result[i + 10] = input[i + 10];
+    result[i + 11] = FIZZ;
+    result[i + 12] = input[i + 12];
+    result[i + 13] = input[i + 13];
+    result[i + 14] = FIZZBUZZ;
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>没别的，就一句话，简单，贼快。</p>
+<h1 id="其他">其他</h1>
+<p><a href="https://news.ycombinator.com/item?id=26422842">HN的另一个评论</a>里提到了一个编译器的AVX展开技巧：<a href="https://godbolt.org/z/q4bcfj">https://godbolt.org/z/q4bcfj</a>。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">void mod15( int arr[ 8 ] )
+{
+    for( int i = 0; i &lt; 8; i++ )
+        arr[ i ] = arr[ i ] % 15;
+}
+
+==&gt;
+
+vmovdqu ymm0, ymmword ptr [rdi]
+vpbroadcastd    ymm2, dword ptr [rip + .LCPI0_0] # ymm2 = [2290649225,2290649225,2290649225,2290649225,2290649225,290649225,2290649225,2290649225]
+vpbroadcastd    ymm3, dword ptr [rip + .LCPI0_1] # ymm3 = [15,15,15,15,15,15,15,15]
+vpshufd ymm1, ymm0, 245                 # ymm1 = ymm0[1,1,3,3,5,5,7,7]
+vpmuldq ymm1, ymm1, ymm2
+vpmuldq ymm2, ymm0, ymm2
+vpshufd ymm2, ymm2, 245                 # ymm2 = ymm2[1,1,3,3,5,5,7,7]
+vpblendd        ymm1, ymm2, ymm1, 170           # ymm1 = ymm2[0],ymm1[1],ymm2[2],ymm1[3],ymm2[4],ymm1[5],ymm2[6],ymm1[7]
+vpaddd  ymm1, ymm1, ymm0
+vpsrld  ymm2, ymm1, 31
+vpsrad  ymm1, ymm1, 3
+vpaddd  ymm1, ymm1, ymm2
+vpmulld ymm1, ymm1, ymm3
+vpsubd  ymm0, ymm0, ymm1
+vmovdqu ymmword ptr [rdi], ymm0
+vzeroupper
+ret
+
+</code></pre></td></tr></table>
+</div>
+</div><p>说实话，没看懂……</p>
+<p>试了下BenchmarkDotNet的教程里关于hash的sample：</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th style="text-align:right">Mean</th>
+<th style="text-align:right">Error</th>
+<th style="text-align:right">StdDev</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Md5</td>
+<td style="text-align:right">22.72 μs</td>
+<td style="text-align:right">0.452 μs</td>
+<td style="text-align:right">0.903 μs</td>
+</tr>
+<tr>
+<td>Sha1</td>
+<td style="text-align:right">26.04 μs</td>
+<td style="text-align:right">0.604 μs</td>
+<td style="text-align:right">1.742 μs</td>
+</tr>
+<tr>
+<td>Sha256</td>
+<td style="text-align:right">69.93 μs</td>
+<td style="text-align:right">2.015 μs</td>
+<td style="text-align:right">5.941 μs</td>
+</tr>
+</tbody>
+</table>
+<p>我宣布我未来一段时间都会是<code>MD5</code>粉了，除非谁送我一块支持<a href="https://en.wikipedia.org/wiki/Intel_SHA_extensions">SHA extension</a>的CPU。</p>
+<p><strong>天下算法，唯快不破！</strong></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">srayuws</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2021-03-13
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/gta/">
+            <span class="next-text nav-default">GTA：我JSON太大，我Parsing太慢，我不懂Hash，但我能挣钱</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://yygq.srayu.ws/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2021<span class="heart"><i class="iconfont icon-heart"></i></span><span>srayuws</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

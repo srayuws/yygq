@@ -6,7 +6,16 @@
     <description>Recent content in Posts on YYGQ site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Tue, 02 Mar 2021 21:37:03 +0800</lastBuildDate><atom:link href="https://yygq.srayu.ws/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 13 Mar 2021 22:12:19 +0800</lastBuildDate><atom:link href="https://yygq.srayu.ws/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>贼快的FizzBuzz</title>
+      <link>https://yygq.srayu.ws/post/fizzbuzz/</link>
+      <pubDate>Sat, 13 Mar 2021 22:12:19 +0800</pubDate>
+      
+      <guid>https://yygq.srayu.ws/post/fizzbuzz/</guid>
+      <description>ref link: FizzBuzz – SIMD Style 周末看了个文章，大意是说Java有了SIMD了，我来教大家怎么用AVX来算FizzBuzz。 说来我第一次知道FizzBuzz还是</description>
+    </item>
+    
     <item>
       <title>GTA：我JSON太大，我Parsing太慢，我不懂Hash，但我能挣钱</title>
       <link>https://yygq.srayu.ws/post/gta/</link>
