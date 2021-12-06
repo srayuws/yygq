@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>特洛伊代码 - YYGQ site</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="srayuws" /><meta name="description" content="ref link: Trojan Source 一篇关于“特洛伊代码”的读书笔记。 TL;DR U&#43;202E Right-to-Left Override（下文简称RLO）是一个老生常谈的特殊符号了。无论是上面的 xkcd 1137，还是之" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.81.0 with theme even" />
+
+
+<link rel="canonical" href="https://yygq.srayu.ws/post/trojansource/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="特洛伊代码" />
+<meta property="og:description" content="ref link: Trojan Source 一篇关于“特洛伊代码”的读书笔记。 TL;DR U&#43;202E Right-to-Left Override（下文简称RLO）是一个老生常谈的特殊符号了。无论是上面的 xkcd 1137，还是之" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yygq.srayu.ws/post/trojansource/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2021-12-06T19:49:11&#43;08:00" />
+<meta property="article:modified_time" content="2021-12-06T19:49:11&#43;08:00" />
+
+<meta itemprop="name" content="特洛伊代码">
+<meta itemprop="description" content="ref link: Trojan Source 一篇关于“特洛伊代码”的读书笔记。 TL;DR U&#43;202E Right-to-Left Override（下文简称RLO）是一个老生常谈的特殊符号了。无论是上面的 xkcd 1137，还是之"><meta itemprop="datePublished" content="2021-12-06T19:49:11&#43;08:00" />
+<meta itemprop="dateModified" content="2021-12-06T19:49:11&#43;08:00" />
+<meta itemprop="wordCount" content="2612">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="特洛伊代码"/>
+<meta name="twitter:description" content="ref link: Trojan Source 一篇关于“特洛伊代码”的读书笔记。 TL;DR U&#43;202E Right-to-Left Override（下文简称RLO）是一个老生常谈的特殊符号了。无论是上面的 xkcd 1137，还是之"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">YYGQ site</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">YYGQ site</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">特洛伊代码</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2021-12-06 </span>
+        
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#rlo-和-它的兄弟们">RLO 和 它的兄弟们</a></li>
+    <li><a href="#攻击方案">攻击方案</a></li>
+    <li><a href="#应对方案">应对方案</a>
+      <ul>
+        <li><a href="#编译器">编译器</a></li>
+        <li><a href="#编辑器">编辑器</a></li>
+      </ul>
+    </li>
+    <li><a href="#其他特殊符号">其他特殊符号</a>
+      <ul>
+        <li><a href="#不可见字符">不可见字符</a></li>
+        <li><a href="#相似字符">相似字符</a></li>
+        <li><a href="#攻击利用">攻击利用</a></li>
+      </ul>
+    </li>
+    <li><a href="#钱">钱</a></li>
+    <li><a href="#外链汇总">外链汇总</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p><img src="https://imgs.xkcd.com/comics/rtl.png" alt="xkcd 1137"></p>
+<p>ref link: <a href="https://trojansource.codes/">Trojan Source</a></p>
+<p>一篇关于“特洛伊代码”的读书笔记。</p>
+<h1 id="tldr">TL;DR</h1>
+<p><a href="https://codepoints.net/U+202E">U+202E Right-to-Left Override</a>（下文简称RLO）是一个老生常谈的特殊符号了。无论是上面的 xkcd 1137，还是之前很多人的微信昵称，都经常能看到。</p>
+<p>文章“特洛伊代码”中介绍了一种潜在的代码攻击方案。主要是通过RLO和其他一些<a href="https://en.wikipedia.org/wiki/Bidirectional_text">文本顺序描述字符</a>的组合使用，让用户在代码编辑器里看到的代码和编译器理解的代码并不完全相同。</p>
+<h1 id="rlo-和-它的兄弟们">RLO 和 它的兄弟们</h1>
+<p>简而言之，RLO会让后续的文本按照从右到左的顺序去显示。这个显示效果会一直持续到接下来的一个换行符（或者是一些其他更复杂的规则，譬如 <a href="https://codepoints.net/U+202C">U+202C PDF</a>）。</p>
+<p>举个例子来说，下面这段“你好世界”：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">‮界世好你‬
+</code></pre></td></tr></table>
+</div>
+</div><p>其实是由“<strong>[RLO]</strong> 界 世 好 你 <strong>[PDF]</strong>”显示出来的。</p>
+<p>同时在一个R-to-L的文本环境中，用户可以通过使用 <a href="https://codepoints.net/U+2066">U+2066 Left-to-Right Isolation</a>来引入一个局部的L-to-R的文本环境，并通过 <a href="https://codepoints.net/U+2069">U+2069 Pop Directional Isolate</a>来取消之前的RLI。例如下面这段“你好世界”：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">‮⁦世界⁩⁦你好⁩‬
+</code></pre></td></tr></table>
+</div>
+</div><p>是通过“<strong>[RLO]</strong> <strong>[LRI]</strong> 世界 <strong>[PDI]</strong> <strong>[LRI]</strong> 你好 <strong>[PDI]</strong> <strong>[PDF]</strong>”构造而成。</p>
+<p>在最外层的R-to-L的环境里，又构造了两个L-to-R的文本环境，让逆序文本的构造更为简单轻松。</p>
+<p>更多的关于文本顺序的规则，参考 <a href="https://www.unicode.org/reports/tr9/">Unicode TR 9</a>。<em>反正我没看。</em></p>
+<h1 id="攻击方案">攻击方案</h1>
+<p>尽管我们可以在文本中通过插入RLO和LRI的组合，让文本的内存顺序和显示顺序完全没有关系。
+但是在主流编译器的眼中，代码是强格式约束的，这些特殊字符并不能出现在任意的位置上。</p>
+<p>而“特洛伊代码”的作者还是找到了两个可以塞任意符号的位置：字符串，注释。</p>
+<p>这里直接上文章作者给的例子：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">access_level</span> <span class="o">=</span> <span class="s">&#34;user&#34;</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">access_level</span><span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="s">&#34;user‮⁦ // check admin⁩⁦&#34;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> 
+        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;You are not admin</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;You are ADMIN</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>一眼看上去，这里是应该输出“You are not admin”的。而实际的输出结果却是“You are ADMIN”。</p>
+<p>其中具体的原因就是if那一行的代码其实是</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">if (access_level.compare(&#34;user[RLO][LRI] // check admin[PDI][LRI]&#34;) == 0) { 
+</code></pre></td></tr></table>
+</div>
+</div><p>这里省略了不必要的 <strong>[PDF]</strong>。</p>
+<h1 id="应对方案">应对方案</h1>
+<p>“特洛伊代码”的作者从两个角度讨论了如何避免类似的“特洛伊代码”攻击：使用代码的<strong>编译器</strong>和显示代码的<strong>编辑器</strong>。</p>
+<h2 id="编译器">编译器</h2>
+<p>从编译器的层面来说，很显然最简单的方案就是禁用这些字符。</p>
+<p>或者至少在遇到这些特殊字符的时候，给出一个合适的warning或者error。就像<a href="https://blog.rust-lang.org/2021/11/01/cve-2021-42574.html">最新版</a>的 rust 会做的那样:</p>
+<p><img src="/images/trojan/rust.png" alt="rust error"></p>
+<p>而在真正需要这些控制符号的时候，就像上面的错误信息一样，完全可以可以通过类似 escape character 的方式来避免在代码中直接出现 U+202E。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-cs" data-lang="cs"><span class="c1">// 举个🌰
+</span><span class="c1"></span><span class="kt">char</span> <span class="n">RLO</span> <span class="p">=</span> <span class="err">&#39;\</span><span class="n">x202e</span><span class="err">&#39;</span><span class="p">;</span>
+<span class="kt">string</span> <span class="n">text</span> <span class="p">=</span> <span class="s">$&#34;{RLO}hello&#34;</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="编辑器">编辑器</h2>
+<p>对于编辑器来说，更合适的方案则是用特殊的方式来显示这些特殊的字符。</p>
+<p>就像我在写这篇读书笔记的时候，VS Code 会把 U+202E 直接显示成 <strong><code>[U+202E]</code></strong>:</p>
+<p><img src="/images/trojan/vscode.png" alt="vscode"></p>
+<p>在原文作者写那篇文章的时候，包括VSC在内的大部分编辑器，无论是本地的还是网页的，大都没有对这些特殊字符做特殊的处理。VIM 是其中位数不多的例外。<em>不过我觉得是VIM无法正确的显示它们。</em></p>
+<p>相比之下，基于 Web UI 的代码阅读似乎就没有那么优秀了。（虽然说VSC四舍五入也是一个Chrome）。在我写这篇读书笔记的时候，Github 依然会按照标准的文本渲染模型去显示包含 RLO 的代码。</p>
+<p>这里的这样问题是，很多时候我们（至少我是这样）在review别人的代码的时候，经常是在在网页里看看就直接点了。</p>
+<p>就像原文作者提到的那样，也许我们可以祈祷 <strong>语法高亮</strong> 程序能够帮助我们，让这些特洛伊代码无处藏身。但是事实上，实际情况并没有想象中的那么美好。就像我在预览这篇文章的样例的时候，我看到的恶意代码差不多长这样：</p>
+<p><img src="/images/trojan/hugo.png" alt="hugo code"></p>
+<p>如果不是我在截图的时候特意加上另一个真正的注释，单纯看上面的部分，我相信很多人无法第一时间意识到情况的异常。</p>
+<p><strong>依赖工具的检查，而不人的细心。</strong></p>
+<h1 id="其他特殊符号">其他特殊符号</h1>
+<p>在 Unicode 中，除了文本书写方向的控制字符，还有两类有趣的符号：</p>
+<ul>
+<li>不可见字符</li>
+<li>相似字符</li>
+</ul>
+<h2 id="不可见字符">不可见字符</h2>
+<p>除了emoji中常用的<a href="https://emojipedia.org/zero-width-joiner/">ZWJ</a>以外，还有一些排版时候会用到的0宽度空格，例如 U+200B Zero Width Space 或者 U+2060 Word Joiner。</p>
+<p>分享一个我所在的团队之前遇到过的一个问题。背景是我们有一组REST API，对应的swagger和swagger生成的各种语言的客户端。一切都挺好的。直到有一天，我们遇到了一个奇怪的现象，某一个API用客户端可以访问，但是自己用postman去调试就一直404。后来发现我们的URL里包含了一个不可见空格。事后我们怀疑是从网上抄代码，复制粘贴的时候带进来的。同事当时还问我是怎么发现这个问题的，我只好说“我能看见常人看不到的东西，就像你背上的那个小人”。</p>
+<h2 id="相似字符">相似字符</h2>
+<p>分享一个我特别喜欢的 Stackoverflow 上的一个问答：<a href="https://stackoverflow.com/a/48287889/2345571">Can (a== 1 &amp;&amp; a ==2 &amp;&amp; a==3) ever evaluate to true?</a>。简而言之，有<a href="https://util.unicode.org/UnicodeJsps/confusables.jsp?a=a&amp;r=None">很多</a>长得像 <code>a</code> 的符号。</p>
+<p>之前也有过攻击者用这些相似的符号去构造钓鱼网站的域名，譬如说 <code>http://pаypal.com</code>。如果你复制这个网址到浏览器里的，主流的浏览器已经够会把它显示成 <code>http://www.xn--pypal-4ve.com</code> 了。</p>
+<h2 id="攻击利用">攻击利用</h2>
+<p>“特洛伊代码”的作者也讨论了这两种类型符号的攻击利用，但是总的来说是没有发现什么特别有用的攻击角度。</p>
+<p>在这里我倒是有个非常不一样的观点。最近体验了包括 Copilot 在内的若干个基于AI和GPT的代码补全工具。</p>
+<p>平常我写5分钟的代码，AI差不多不到1秒就能帮我 <strong>正确</strong> 地全部写完。我之前写了个一个BFS，50行上下得代码，大概只有10行不到是我自己写的。而问题是，在AI写完以后，我由于过于震惊，还花了差不多10分钟得时间去review它的代码。</p>
+<p>在意识到AI写的确实好以后，我花了大概30分钟的时间，才从 <strong>震惊</strong> 和 <em>恐慌</em> 的情绪中平复下来。</p>
+<p>可以说是 <strong>非常耽误</strong> 工作效率了。</p>
+<p>这里主要是想说，一旦开发者（这里指我）习惯于让AI去写那些重复性的简单代码的话，而AI在生成的代码里，恰好又插入了这些肉眼无法识别，或者难以区分，的符号，那么开发者（还是指我）将几乎不可能识别出这些问题。而超大AI模型的训练经验告诉我，想要在训练数据里插入恶意输入，<strong>实在是太容易了</strong>。</p>
+<p>这并非危言耸听，回想一下几年前，微软的聊天机器人Tay是怎样从一个无知少女，在一天之内就变成了一个可怕的，支持纳粹的，互联网巨魔。</p>
+<p>着实希望之前提到过的编辑器和编译器团队，能够像对待 RLO 一样对待这些不可见字符和相似字符。</p>
+<p><em>如果有人因为看了这篇文章，发了相关的CVE，记得告诉我一声。</em></p>
+<h1 id="钱">钱</h1>
+<p>“特洛伊代码”的作者在文中同样提到，通过做白帽卖CVE，挣了一万多刀。</p>
+<p>真好啊，真好啊…………</p>
+<h1 id="外链汇总">外链汇总</h1>
+<ul>
+<li>Trojan Source: <a href="https://trojansource.codes/">https://trojansource.codes/</a></li>
+<li>XKCD 1137: <a href="https://xkcd.com/1137/">https://xkcd.com/1137/</a></li>
+<li>Unicode Bidirectional Algorithm: <a href="https://www.unicode.org/reports/tr9/">https://www.unicode.org/reports/tr9/</a></li>
+<li>Unicode Security Considerations: <a href="https://www.unicode.org/reports/tr36/">https://www.unicode.org/reports/tr36/</a> and <a href="https://www.unicode.org/Public/security/latest/confusablesSummary.txt">https://www.unicode.org/Public/security/latest/confusablesSummary.txt</a></li>
+<li>Whitespace in Unicode: <a href="https://en.wikipedia.org/wiki/Whitespace_character#Unicode">https://en.wikipedia.org/wiki/Whitespace_character#Unicode</a></li>
+<li>Can (a== 1 &amp;&amp; a ==2 &amp;&amp; a==3) ever evaluate to true?: <a href="https://stackoverflow.com/questions/48270127/can-a-1-a-2-a-3-ever-evaluate-to-true">https://stackoverflow.com/questions/48270127/can-a-1-a-2-a-3-ever-evaluate-to-true</a></li>
+<li>ZWJ in emoji: <a href="https://blog.emojipedia.org/emoji-zwj-sequences-three-letters-many-possibilities/">https://blog.emojipedia.org/emoji-zwj-sequences-three-letters-many-possibilities/</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">srayuws</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2021-12-06
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/fizzbuzz/">
+            <span class="next-text nav-default">贼快的FizzBuzz</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://yygq.srayu.ws/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2021<span class="heart"><i class="iconfont icon-heart"></i></span><span>srayuws</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

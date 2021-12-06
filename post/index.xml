@@ -6,7 +6,16 @@
     <description>Recent content in Posts on YYGQ site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sat, 13 Mar 2021 22:12:19 +0800</lastBuildDate><atom:link href="https://yygq.srayu.ws/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 06 Dec 2021 19:49:11 +0800</lastBuildDate><atom:link href="https://yygq.srayu.ws/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>特洛伊代码</title>
+      <link>https://yygq.srayu.ws/post/trojansource/</link>
+      <pubDate>Mon, 06 Dec 2021 19:49:11 +0800</pubDate>
+      
+      <guid>https://yygq.srayu.ws/post/trojansource/</guid>
+      <description>ref link: Trojan Source 一篇关于“特洛伊代码”的读书笔记。 TL;DR U+202E Right-to-Left Override（下文简称RLO）是一个老生常谈的特殊符号了。无论是上面的 xkcd 1137，还是之</description>
+    </item>
+    
     <item>
       <title>贼快的FizzBuzz</title>
       <link>https://yygq.srayu.ws/post/fizzbuzz/</link>
@@ -14,15 +23,6 @@
       
       <guid>https://yygq.srayu.ws/post/fizzbuzz/</guid>
       <description>ref link: FizzBuzz – SIMD Style 周末看了个文章，大意是说Java有了SIMD了，我来教大家怎么用AVX来算FizzBuzz。 说来我第一次知道FizzBuzz还是</description>
-    </item>
-    
-    <item>
-      <title>GTA：我JSON太大，我Parsing太慢，我不懂Hash，但我能挣钱</title>
-      <link>https://yygq.srayu.ws/post/gta/</link>
-      <pubDate>Tue, 02 Mar 2021 21:37:03 +0800</pubDate>
-      
-      <guid>https://yygq.srayu.ws/post/gta/</guid>
-      <description>ref link: How I cut GTA Online loading times by 70% TL,DR: 老哥发现 GTA 在 online 模式开启后， 启动时间特别慢。下载了一堆数据以后，跑了4分钟CPU。 一通逆向以后猜测，下载了一个 10 MB 的J</description>
     </item>
     
     <item>
