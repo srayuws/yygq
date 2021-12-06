@@ -26,6 +26,15 @@
     </item>
     
     <item>
+      <title>GTA：我JSON太大，我Parsing太慢，我不懂Hash，但我能挣钱</title>
+      <link>https://yygq.srayu.ws/post/gta/</link>
+      <pubDate>Tue, 02 Mar 2021 21:37:03 +0800</pubDate>
+      
+      <guid>https://yygq.srayu.ws/post/gta/</guid>
+      <description>ref link: How I cut GTA Online loading times by 70% TL,DR: 老哥发现 GTA 在 online 模式开启后， 启动时间特别慢。下载了一堆数据以后，跑了4分钟CPU。 一通逆向以后猜测，下载了一个 10 MB 的J</description>
+    </item>
+    
+    <item>
       <title>有一说一</title>
       <link>https://yygq.srayu.ws/post/y1s1/</link>
       <pubDate>Sun, 28 Feb 2021 18:15:35 +0800</pubDate>
