@@ -6,7 +6,16 @@
     <description>Recent content in Posts on YYGQ site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Mon, 06 Dec 2021 19:49:11 +0800</lastBuildDate><atom:link href="https://yygq.srayu.ws/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 16 Aug 2023 00:31:42 -0700</lastBuildDate><atom:link href="https://yygq.srayu.ws/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>图形计算器诞生记</title>
+      <link>https://yygq.srayu.ws/post/graphic-calculator-story/</link>
+      <pubDate>Wed, 16 Aug 2023 00:31:42 -0700</pubDate>
+      
+      <guid>https://yygq.srayu.ws/post/graphic-calculator-story/</guid>
+      <description>至少一度，苹果的工程师热衷于在工作之余打造自己的项目。硅谷开始正视这个传统，还要等到多年后谷歌的 20% 策略。但也有人离开了苹果仍孜孜不倦，例如，</description>
+    </item>
+    
     <item>
       <title>特洛伊代码</title>
       <link>https://yygq.srayu.ws/post/trojansource/</link>

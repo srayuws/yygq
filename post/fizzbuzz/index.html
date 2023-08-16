@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.81.0 with theme even" />
+<meta name="generator" content="Hugo 0.111.3 with theme even" />
 
 
 <link rel="canonical" href="https://yygq.srayu.ws/post/fizzbuzz/" />
@@ -35,7 +35,7 @@
 
 
 
-<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
@@ -43,13 +43,12 @@
 <meta property="og:description" content="ref link: FizzBuzz – SIMD Style 周末看了个文章，大意是说Java有了SIMD了，我来教大家怎么用AVX来算FizzBuzz。 说来我第一次知道FizzBuzz还是" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://yygq.srayu.ws/post/fizzbuzz/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2021-03-13T22:12:19&#43;08:00" />
-<meta property="article:modified_time" content="2021-03-13T22:12:19&#43;08:00" />
-
+<meta property="article:published_time" content="2021-03-13T22:12:19+08:00" />
+<meta property="article:modified_time" content="2021-03-13T22:12:19+08:00" />
 <meta itemprop="name" content="贼快的FizzBuzz">
-<meta itemprop="description" content="ref link: FizzBuzz – SIMD Style 周末看了个文章，大意是说Java有了SIMD了，我来教大家怎么用AVX来算FizzBuzz。 说来我第一次知道FizzBuzz还是"><meta itemprop="datePublished" content="2021-03-13T22:12:19&#43;08:00" />
-<meta itemprop="dateModified" content="2021-03-13T22:12:19&#43;08:00" />
-<meta itemprop="wordCount" content="3048">
+<meta itemprop="description" content="ref link: FizzBuzz – SIMD Style 周末看了个文章，大意是说Java有了SIMD了，我来教大家怎么用AVX来算FizzBuzz。 说来我第一次知道FizzBuzz还是"><meta itemprop="datePublished" content="2021-03-13T22:12:19+08:00" />
+<meta itemprop="dateModified" content="2021-03-13T22:12:19+08:00" />
+<meta itemprop="wordCount" content="3047">
 <meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="贼快的FizzBuzz"/>
 <meta name="twitter:description" content="ref link: FizzBuzz – SIMD Style 周末看了个文章，大意是说Java有了SIMD了，我来教大家怎么用AVX来算FizzBuzz。 说来我第一次知道FizzBuzz还是"/>
@@ -166,11 +165,11 @@
 <p>主要思想是，AVX里有一个<a href="https://software.intel.com/content/www/us/en/develop/documentation/cpp-compiler-developer-guide-and-reference/top/compiler-reference/intrinsics/intrinsics-for-intel-advanced-vector-extensions-2/intrinsics-for-blend-operations-1/mm-blend-epi32-mm256-blend-epi16-32.html">blend</a>方法，长这样：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">__m256i _mm256_blend_epi32(__m256i s1, __m256i s2, const int mask);
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">__m256i _mm256_blend_epi32(__m256i s1, __m256i s2, const int mask);
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>大体来说就是，按照mask里面每个bit的0或1，决定输出的8个数是来自s1或者s2中的哪一个。本质是个 if-else 操作。
 对应epi16的版本，感觉<a href="https://www.felixcloutier.com/x86/pblendw">这里 vpblendw</a>说的更清楚一些。</p>
@@ -276,7 +275,7 @@
 <p>先说一个我之前面试的时候遇到过的一个常见错误：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -284,19 +283,19 @@
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback"># Wrong code
-
-if       (n %  3 == 0) =&gt; Fizz
-else if  (n %  5 == 0) =&gt; Buzz
-else if  (n % 15 == 0) =&gt; FizzBuzz
-else                   =&gt; n
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># Wrong code
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">if       (n %  3 == 0) =&gt; Fizz
+</span></span><span class="line"><span class="cl">else if  (n %  5 == 0) =&gt; Buzz
+</span></span><span class="line"><span class="cl">else if  (n % 15 == 0) =&gt; FizzBuzz
+</span></span><span class="line"><span class="cl">else                   =&gt; n
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>事实上这个实现是永远不可能输出“FizzBuzz”的。我怀疑很多人写成这样，是由于文本到代码的直接翻译导致的，有点类似“如果看到卖西瓜的，买一个”。</p>
 <p>一个简单的修复是把那个 %15 的版本放到最上面，变成：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -304,18 +303,18 @@ else                   =&gt; n
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback"># Simple-15
-
-if       (n % 15 == 0) =&gt; FizzBuzz
-else if  (n %  3 == 0) =&gt; Fizz
-else if  (n %  5 == 0) =&gt; Buzz
-else                   =&gt; n
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># Simple-15
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">if       (n % 15 == 0) =&gt; FizzBuzz
+</span></span><span class="line"><span class="cl">else if  (n %  3 == 0) =&gt; Fizz
+</span></span><span class="line"><span class="cl">else if  (n %  5 == 0) =&gt; Buzz
+</span></span><span class="line"><span class="cl">else                   =&gt; n
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>或者按照Gunnar的做法，如果确定是3的倍数以后，多加一个5的倍数的检查：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -324,14 +323,14 @@ else                   =&gt; n
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback"># Simple-3-5
-
-if        (n % 3 == 0) 
-    if    (n % 5 == 0)   =&gt; FizzBuzz
-    else                 =&gt; Fizz  
-else if   (n % 5 == 0)   =&gt; Buzz
-else                     =&gt; n
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># Simple-3-5
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">if        (n % 3 == 0) 
+</span></span><span class="line"><span class="cl">    if    (n % 5 == 0)   =&gt; FizzBuzz
+</span></span><span class="line"><span class="cl">    else                 =&gt; Fizz  
+</span></span><span class="line"><span class="cl">else if   (n % 5 == 0)   =&gt; Buzz
+</span></span><span class="line"><span class="cl">else                     =&gt; n
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>其实我之前从来没想过这两种写法会有差不多25%的性能差异。不过仔细想想<code>-15</code>的版本确实要慢很多。</p>
 <p>大概一半（8/15=0.53）的数是与3，5无关的。在<code>-15</code>的版本中，他们都需要3次mod运算，而在<code>-3-5</code>中则只需要2次。对于占26%的Fizz组而言，都是2次，没有区别。而占13%的Buzz组，<code>-15</code>里是3次mod，在<code>-3-5</code>中依然是2次。最后是6%的FizzBuzz组，分别是1次和2次。</p>
@@ -342,7 +341,7 @@ else                     =&gt; n
 <p>在我跑SIMD的跑分的时候，系统每次都会提示我一个类似的错误：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -365,33 +364,33 @@ else                     =&gt; n
 </span><span class="lnt">21
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">// * Warnings *
-MultimodalDistribution
-  FizzBuzzBenchmark.SIMD: Default         -&gt; It seems that the distribution is bimodal (mValue = 3.65)
-
-FizzBuzzBenchmark.SIMD: DefaultJob
-Runtime = .NET Core 5.0.4 (CoreCLR 5.0.421.11614, CoreFX 5.0.421.11614), X64 RyuJIT; GC = Concurrent Workstation
-Mean = 379.348 ns, StdErr = 4.012 ns (1.06%), N = 99, StdDev = 39.918 ns
-Min = 307.527 ns, Q1 = 348.640 ns, Median = 373.750 ns, Q3 = 406.518 ns, Max = 472.894 ns
-IQR = 57.878 ns, LowerFence = 261.823 ns, UpperFence = 493.334 ns
-ConfidenceInterval = [365.737 ns; 392.959 ns] (CI 99.9%), Margin = 13.611 ns (3.59% of Mean)
-Skewness = 0.34, Kurtosis = 2.29, MValue = 3.65
--------------------- Histogram --------------------
-[307.146 ns ; 332.744 ns) | @@@@@@@@@@
-[332.744 ns ; 355.395 ns) | @@@@@@@@@@@@@@@@@@@@@@@
-[355.395 ns ; 377.707 ns) | @@@@@@@@@@@@@@@@@@@@
-[377.707 ns ; 386.188 ns) | @@
-[386.188 ns ; 408.839 ns) | @@@@@@@@@@@@@@@@@@@@@
-[408.839 ns ; 434.039 ns) | @@@@@@@@@@@@@@
-[434.039 ns ; 456.646 ns) | @@@@@@
-[456.646 ns ; 478.479 ns) | @@@
----------------------------------------------------
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">// * Warnings *
+</span></span><span class="line"><span class="cl">MultimodalDistribution
+</span></span><span class="line"><span class="cl">  FizzBuzzBenchmark.SIMD: Default         -&gt; It seems that the distribution is bimodal (mValue = 3.65)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">FizzBuzzBenchmark.SIMD: DefaultJob
+</span></span><span class="line"><span class="cl">Runtime = .NET Core 5.0.4 (CoreCLR 5.0.421.11614, CoreFX 5.0.421.11614), X64 RyuJIT; GC = Concurrent Workstation
+</span></span><span class="line"><span class="cl">Mean = 379.348 ns, StdErr = 4.012 ns (1.06%), N = 99, StdDev = 39.918 ns
+</span></span><span class="line"><span class="cl">Min = 307.527 ns, Q1 = 348.640 ns, Median = 373.750 ns, Q3 = 406.518 ns, Max = 472.894 ns
+</span></span><span class="line"><span class="cl">IQR = 57.878 ns, LowerFence = 261.823 ns, UpperFence = 493.334 ns
+</span></span><span class="line"><span class="cl">ConfidenceInterval = [365.737 ns; 392.959 ns] (CI 99.9%), Margin = 13.611 ns (3.59% of Mean)
+</span></span><span class="line"><span class="cl">Skewness = 0.34, Kurtosis = 2.29, MValue = 3.65
+</span></span><span class="line"><span class="cl">-------------------- Histogram --------------------
+</span></span><span class="line"><span class="cl">[307.146 ns ; 332.744 ns) | @@@@@@@@@@
+</span></span><span class="line"><span class="cl">[332.744 ns ; 355.395 ns) | @@@@@@@@@@@@@@@@@@@@@@@
+</span></span><span class="line"><span class="cl">[355.395 ns ; 377.707 ns) | @@@@@@@@@@@@@@@@@@@@
+</span></span><span class="line"><span class="cl">[377.707 ns ; 386.188 ns) | @@
+</span></span><span class="line"><span class="cl">[386.188 ns ; 408.839 ns) | @@@@@@@@@@@@@@@@@@@@@
+</span></span><span class="line"><span class="cl">[408.839 ns ; 434.039 ns) | @@@@@@@@@@@@@@
+</span></span><span class="line"><span class="cl">[434.039 ns ; 456.646 ns) | @@@@@@
+</span></span><span class="line"><span class="cl">[456.646 ns ; 478.479 ns) | @@@
+</span></span><span class="line"><span class="cl">---------------------------------------------------
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>思来想去，怀疑是load数据的时候，input data的地址对齐造成的问题。然后写了个自己对齐输入地址的实验。结果倒是挺出乎意料的。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -403,17 +402,17 @@ Skewness = 0.34, Kurtosis = 2.29, MValue = 3.65
 </span><span class="lnt">10
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-csharp" data-lang="csharp"><span class="c1">// Init:
-</span><span class="c1"></span><span class="n">input</span> <span class="p">=</span> <span class="k">new</span> <span class="kt">int</span><span class="p">[</span><span class="n">N</span><span class="p">+</span><span class="m">8</span><span class="p">];</span>
-<span class="k">fixed</span> <span class="p">(</span><span class="kt">int</span><span class="p">*</span> <span class="n">start</span> <span class="p">=</span> <span class="n">input</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="kt">var</span> <span class="n">aligned</span> <span class="p">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">*)(((</span><span class="kt">ulong</span><span class="p">)</span><span class="n">start</span> <span class="p">+</span> <span class="m">31</span><span class="n">UL</span><span class="p">)</span> <span class="p">&amp;</span> <span class="p">~</span><span class="m">31</span><span class="n">UL</span><span class="p">);</span>
-    <span class="n">alignOffset</span> <span class="p">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)(</span><span class="n">aligned</span> <span class="p">-</span> <span class="n">start</span><span class="p">);</span>
-<span class="p">}</span>
-
-<span class="c1">// Load data:
-</span><span class="c1"></span><span class="kt">var</span> <span class="n">s1</span> <span class="p">=</span> <span class="n">Avx2</span><span class="p">.</span><span class="n">LoadAlignedVector256</span><span class="p">(</span><span class="n">start</span> <span class="p">+</span> <span class="n">alignOffset</span> <span class="p">+</span> <span class="n">i</span><span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-csharp" data-lang="csharp"><span class="line"><span class="cl"><span class="c1">// Init:</span>
+</span></span><span class="line"><span class="cl"><span class="n">input</span> <span class="p">=</span> <span class="k">new</span> <span class="kt">int</span><span class="p">[</span><span class="n">N</span><span class="p">+</span><span class="m">8</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="k">fixed</span> <span class="p">(</span><span class="kt">int</span><span class="p">*</span> <span class="n">start</span> <span class="p">=</span> <span class="n">input</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">var</span> <span class="n">aligned</span> <span class="p">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">*)(((</span><span class="kt">ulong</span><span class="p">)</span><span class="n">start</span> <span class="p">+</span> <span class="m">31</span><span class="n">UL</span><span class="p">)</span> <span class="p">&amp;</span> <span class="p">~</span><span class="m">31</span><span class="n">UL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">alignOffset</span> <span class="p">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)(</span><span class="n">aligned</span> <span class="p">-</span> <span class="n">start</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Load data:</span>
+</span></span><span class="line"><span class="cl"><span class="kt">var</span> <span class="n">s1</span> <span class="p">=</span> <span class="n">Avx2</span><span class="p">.</span><span class="n">LoadAlignedVector256</span><span class="p">(</span><span class="n">start</span> <span class="p">+</span> <span class="n">alignOffset</span> <span class="p">+</span> <span class="n">i</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>其实这个代码单纯跑一两次倒是没啥问题。但是用 BenchmarkDotNet 跑的话，几乎一定会挂在<code>WorkloadJitting  1</code>这个阶段。
 一番debug以后发现，如果开始我new出来的input是不对齐的，在 load 的时候，<code>start</code>会突然神秘的变成对齐的形状。
@@ -432,7 +431,7 @@ Skewness = 0.34, Kurtosis = 2.29, MValue = 3.65
 <p><code>Unroll-15</code>是<code>SIMD_Unroll_16</code>去掉SIMD的另一个实验：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -452,32 +451,32 @@ Skewness = 0.34, Kurtosis = 2.29, MValue = 3.65
 </span><span class="lnt">18
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">for (; i &lt; bound; i += 15)
-{
-    result[i]      = input[i];
-    result[i + 1]  = input[i + 1];
-    result[i + 2]  = FIZZ;
-    result[i + 3]  = input[i + 3];
-    result[i + 4]  = BUZZ;
-    result[i + 5]  = FIZZ;
-    result[i + 6]  = input[i + 6];
-    result[i + 7]  = input[i + 7];
-    result[i + 8]  = FIZZ;
-    result[i + 9]  = BUZZ;
-    result[i + 10] = input[i + 10];
-    result[i + 11] = FIZZ;
-    result[i + 12] = input[i + 12];
-    result[i + 13] = input[i + 13];
-    result[i + 14] = FIZZBUZZ;
-}
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">for (; i &lt; bound; i += 15)
+</span></span><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">    result[i]      = input[i];
+</span></span><span class="line"><span class="cl">    result[i + 1]  = input[i + 1];
+</span></span><span class="line"><span class="cl">    result[i + 2]  = FIZZ;
+</span></span><span class="line"><span class="cl">    result[i + 3]  = input[i + 3];
+</span></span><span class="line"><span class="cl">    result[i + 4]  = BUZZ;
+</span></span><span class="line"><span class="cl">    result[i + 5]  = FIZZ;
+</span></span><span class="line"><span class="cl">    result[i + 6]  = input[i + 6];
+</span></span><span class="line"><span class="cl">    result[i + 7]  = input[i + 7];
+</span></span><span class="line"><span class="cl">    result[i + 8]  = FIZZ;
+</span></span><span class="line"><span class="cl">    result[i + 9]  = BUZZ;
+</span></span><span class="line"><span class="cl">    result[i + 10] = input[i + 10];
+</span></span><span class="line"><span class="cl">    result[i + 11] = FIZZ;
+</span></span><span class="line"><span class="cl">    result[i + 12] = input[i + 12];
+</span></span><span class="line"><span class="cl">    result[i + 13] = input[i + 13];
+</span></span><span class="line"><span class="cl">    result[i + 14] = FIZZBUZZ;
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>没别的，就一句话，简单，贼快。</p>
 <h1 id="其他">其他</h1>
 <p><a href="https://news.ycombinator.com/item?id=26422842">HN的另一个评论</a>里提到了一个编译器的AVX展开技巧：<a href="https://godbolt.org/z/q4bcfj">https://godbolt.org/z/q4bcfj</a>。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -502,36 +501,34 @@ Skewness = 0.34, Kurtosis = 2.29, MValue = 3.65
 </span><span class="lnt">23
 </span><span class="lnt">24
 </span><span class="lnt">25
-</span><span class="lnt">26
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">void mod15( int arr[ 8 ] )
-{
-    for( int i = 0; i &lt; 8; i++ )
-        arr[ i ] = arr[ i ] % 15;
-}
-
-==&gt;
-
-vmovdqu ymm0, ymmword ptr [rdi]
-vpbroadcastd    ymm2, dword ptr [rip + .LCPI0_0] # ymm2 = [2290649225,2290649225,2290649225,2290649225,2290649225,290649225,2290649225,2290649225]
-vpbroadcastd    ymm3, dword ptr [rip + .LCPI0_1] # ymm3 = [15,15,15,15,15,15,15,15]
-vpshufd ymm1, ymm0, 245                 # ymm1 = ymm0[1,1,3,3,5,5,7,7]
-vpmuldq ymm1, ymm1, ymm2
-vpmuldq ymm2, ymm0, ymm2
-vpshufd ymm2, ymm2, 245                 # ymm2 = ymm2[1,1,3,3,5,5,7,7]
-vpblendd        ymm1, ymm2, ymm1, 170           # ymm1 = ymm2[0],ymm1[1],ymm2[2],ymm1[3],ymm2[4],ymm1[5],ymm2[6],ymm1[7]
-vpaddd  ymm1, ymm1, ymm0
-vpsrld  ymm2, ymm1, 31
-vpsrad  ymm1, ymm1, 3
-vpaddd  ymm1, ymm1, ymm2
-vpmulld ymm1, ymm1, ymm3
-vpsubd  ymm0, ymm0, ymm1
-vmovdqu ymmword ptr [rdi], ymm0
-vzeroupper
-ret
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">void mod15( int arr[ 8 ] )
+</span></span><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">    for( int i = 0; i &lt; 8; i++ )
+</span></span><span class="line"><span class="cl">        arr[ i ] = arr[ i ] % 15;
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">==&gt;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">vmovdqu ymm0, ymmword ptr [rdi]
+</span></span><span class="line"><span class="cl">vpbroadcastd    ymm2, dword ptr [rip + .LCPI0_0] # ymm2 = [2290649225,2290649225,2290649225,2290649225,2290649225,290649225,2290649225,2290649225]
+</span></span><span class="line"><span class="cl">vpbroadcastd    ymm3, dword ptr [rip + .LCPI0_1] # ymm3 = [15,15,15,15,15,15,15,15]
+</span></span><span class="line"><span class="cl">vpshufd ymm1, ymm0, 245                 # ymm1 = ymm0[1,1,3,3,5,5,7,7]
+</span></span><span class="line"><span class="cl">vpmuldq ymm1, ymm1, ymm2
+</span></span><span class="line"><span class="cl">vpmuldq ymm2, ymm0, ymm2
+</span></span><span class="line"><span class="cl">vpshufd ymm2, ymm2, 245                 # ymm2 = ymm2[1,1,3,3,5,5,7,7]
+</span></span><span class="line"><span class="cl">vpblendd        ymm1, ymm2, ymm1, 170           # ymm1 = ymm2[0],ymm1[1],ymm2[2],ymm1[3],ymm2[4],ymm1[5],ymm2[6],ymm1[7]
+</span></span><span class="line"><span class="cl">vpaddd  ymm1, ymm1, ymm0
+</span></span><span class="line"><span class="cl">vpsrld  ymm2, ymm1, 31
+</span></span><span class="line"><span class="cl">vpsrad  ymm1, ymm1, 3
+</span></span><span class="line"><span class="cl">vpaddd  ymm1, ymm1, ymm2
+</span></span><span class="line"><span class="cl">vpmulld ymm1, ymm1, ymm3
+</span></span><span class="line"><span class="cl">vpsubd  ymm0, ymm0, ymm1
+</span></span><span class="line"><span class="cl">vmovdqu ymmword ptr [rdi], ymm0
+</span></span><span class="line"><span class="cl">vzeroupper
+</span></span><span class="line"><span class="cl">ret
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>说实话，没看懂……</p>
 <p>试了下BenchmarkDotNet的教程里关于hash的sample：</p>
@@ -630,7 +627,8 @@ ret
 
   <span class="copyright-year">
     &copy; 
-    2021<span class="heart"><i class="iconfont icon-heart"></i></span><span>srayuws</span>
+    2021 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>srayuws</span>
   </span>
 </div>
 
@@ -647,7 +645,7 @@ ret
 
 
 
-<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
 
 
 
