@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>在QEMU中加载自己的 Linux Kernel - YYGQ site</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="srayuws" /><meta name="description" content="背景 最近的工作中涉及到一些需要魔改 Linux Kernel 代码和加载一些自己的 kernel module 的工作。 之前每次编译完 kernel 以后，都会把新的 kernel 装到自己在云上的开发机里，每次都很是" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.111.3 with theme even" />
+
+
+<link rel="canonical" href="https://yygq.srayu.ws/post/kernel-in-qemu/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="在QEMU中加载自己的 Linux Kernel" />
+<meta property="og:description" content="背景 最近的工作中涉及到一些需要魔改 Linux Kernel 代码和加载一些自己的 kernel module 的工作。 之前每次编译完 kernel 以后，都会把新的 kernel 装到自己在云上的开发机里，每次都很是" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yygq.srayu.ws/post/kernel-in-qemu/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-12-21T12:31:48-08:00" />
+<meta property="article:modified_time" content="2023-12-21T12:31:48-08:00" />
+<meta itemprop="name" content="在QEMU中加载自己的 Linux Kernel">
+<meta itemprop="description" content="背景 最近的工作中涉及到一些需要魔改 Linux Kernel 代码和加载一些自己的 kernel module 的工作。 之前每次编译完 kernel 以后，都会把新的 kernel 装到自己在云上的开发机里，每次都很是"><meta itemprop="datePublished" content="2023-12-21T12:31:48-08:00" />
+<meta itemprop="dateModified" content="2023-12-21T12:31:48-08:00" />
+<meta itemprop="wordCount" content="3215">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="在QEMU中加载自己的 Linux Kernel"/>
+<meta name="twitter:description" content="背景 最近的工作中涉及到一些需要魔改 Linux Kernel 代码和加载一些自己的 kernel module 的工作。 之前每次编译完 kernel 以后，都会把新的 kernel 装到自己在云上的开发机里，每次都很是"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">YYGQ site</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">YYGQ site</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">在QEMU中加载自己的 Linux Kernel</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2023-12-21 </span>
+        
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#背景">背景</a></li>
+    <li><a href="#安装-qemu">安装 QEMU</a></li>
+    <li><a href="#编译-kernel">编译 Kernel</a>
+      <ul>
+        <li><a href="#下载-kernel-代码">下载 Kernel 代码</a></li>
+        <li><a href="#安装依赖">安装依赖</a></li>
+        <li><a href="#准备config">准备config</a></li>
+        <li><a href="#编译内核">编译内核</a></li>
+      </ul>
+    </li>
+    <li><a href="#准备磁盘映像文件">准备磁盘映像文件</a>
+      <ul>
+        <li><a href="#补课linux-启动流程">【补课】Linux 启动流程</a></li>
+        <li><a href="#准备磁盘-raw-image">准备磁盘 Raw Image</a></li>
+        <li><a href="#arch-chroot">arch-chroot</a></li>
+        <li><a href="#转换成-qcow2-格式">转换成 qcow2 格式</a></li>
+      </ul>
+    </li>
+    <li><a href="#启动-qemu">启动 QEMU</a>
+      <ul>
+        <li><a href="#-enable-kvm">-enable-kvm</a></li>
+        <li><a href="#-m">-m</a></li>
+        <li><a href="#-nographic">-nographic</a></li>
+        <li><a href="#-device-和--netdev">-device 和 -netdev</a></li>
+        <li><a href="#-kernel-和--hda">-kernel 和 -hda</a></li>
+        <li><a href="#-append">-append</a></li>
+        <li><a href="#退出-qemu">退出 QEMU</a></li>
+      </ul>
+    </li>
+    <li><a href="#更多">更多</a>
+      <ul>
+        <li><a href="#用-gdb-调试-kernel">用 GDB 调试 kernel</a></li>
+        <li><a href="#加载基于-buzybox-的-initramfs">加载基于 Buzybox 的 initramfs</a></li>
+        <li><a href="#可是-arch-linux-不支持-arm">可是 Arch Linux 不支持 ARM</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <h1 id="背景">背景</h1>
+<p>最近的工作中涉及到一些需要魔改 Linux Kernel 代码和加载一些自己的 kernel module 的工作。
+之前每次编译完 kernel 以后，都会把新的 kernel 装到自己在云上的开发机里，每次都很是担惊受怕。
+每次都要“关机-备份-安装-重启”。前几天还因为一些奇怪行为，直接把文件系统给玩坏了，导致丢了几天的草稿代码。</p>
+<p>之后就一直想着，是不是应该把我的魔改 kernel 放到一个相对隔离起来的环境里。
+至少玩坏了以后，不要把我的主力开发机反复弄死。所以就研究了一下怎么用 QEMU 来加载我自己的 kernel。</p>
+<p>QEMU 很贴心的提供直接从 bzImage 启动的功能： <a href="https://www.qemu.org/docs/master/system/linuxboot.html">Direct Linux Boot</a></p>
+<p>但是要直接从bzImage启动，QEMU还需要用户提供一个<code>-hda</code> 或者<code>-initrd</code>。</p>
+<p>这篇文章主要包含以下几个部分：</p>
+<ul>
+<li>安装QEMU</li>
+<li>编译 bzImage</li>
+<li>准备一个基于 Arch Linux 的磁盘映像</li>
+<li>QEMU，启动！</li>
+</ul>
+<h1 id="安装-qemu">安装 QEMU</h1>
+<p>我的系统是跑在 WSL 里面的 Ubuntu。安装直接 apt 就完事了。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo apt install qemu-system-x86
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>因为我暂时不太关心别的架构（譬如说ARM64）的情况，所以只装了<code>-x86</code>的版本。如果需要别的 arch 支持，
+装别的版本就可以了。</p>
+<p>也有人推荐下载最新的源码，从头编译。<em>（你都编译一遍 kernel 了，再编译一个 QEMU 算什么）</em>
+只能说开心就好。</p>
+<h1 id="编译-kernel">编译 Kernel</h1>
+<p>编译 Kernel 的几个步骤也很简单：</p>
+<ul>
+<li>下载代码</li>
+<li>准备编译依赖</li>
+<li>准备config</li>
+<li>开始编译</li>
+</ul>
+<h2 id="下载-kernel-代码">下载 Kernel 代码</h2>
+<p>Linux Kernel 的代码可以从 <a href="https://www.kernel.org">www.kernel.org</a> 下载，也可以从 GitHub 下载。
+地址分别是： <a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/">https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/</a>
+或者 <a href="https://github.com/torvalds/linux">https://github.com/torvalds/linux</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> ~
+</span></span><span class="line"><span class="cl">git clone https://github.com/torvalds/linux
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>不要问什么为什么用git下载，不直接用tar包。问就是不会用tar<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
+<h2 id="安装依赖">安装依赖</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo apt install build-essential flex bison libssl-dev libelf-dev libncurses-dev
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>具体每个依赖是做什么的，参考 <a href="https://docs.kernel.org/process/changes.html">https://docs.kernel.org/process/changes.html</a>，
+根据config的不同，不一定都用得上。</p>
+<p>特别说一下 <code>ncurses</code>。 编译 Kernel 的时候不需要。但是如果跑 <code>menuconfig</code><sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup> 的话，会依赖这个。</p>
+<h2 id="准备config">准备config</h2>
+<p>一般 distro 都会把当前 Kernel 在编译时用的 <code>.config</code> 放到 <code>/boot/</code> 下面。
+但是因为 WSL 不是一个标准的 Linux，他的 /boot 下面是空的。</p>
+<p>所以比较方便的方式还是从网上找一个别的 distro 正在用的 config。</p>
+<p>譬如说 WSL 的 config 在这里： <a href="https://github.com/microsoft/WSL2-Linux-Kernel/blob/linux-msft-wsl-5.15.y/arch/x86/configs/config-wsl">https://github.com/microsoft/WSL2-Linux-Kernel/blob/linux-msft-wsl-5.15.y/arch/x86/configs/config-wsl</a> 。</p>
+<p>而 Arch Linux 的 config 在这里： <a href="https://gitlab.archlinux.org/archlinux/packaging/packages/linux/-/blob/main/config">https://gitlab.archlinux.org/archlinux/packaging/packages/linux/-/blob/main/config</a></p>
+<p>不过不要用 WSL 的config，会变得不幸。几乎什么驱动都没有配置。</p>
+<p>我选的是我们隔壁 Azure Linux 团队在维护的一个config： <a href="https://github.com/microsoft/CBL-Mariner/blob/2.0/SPECS/kernel/config">https://github.com/microsoft/CBL-Mariner/blob/2.0/SPECS/kernel/config</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">mkdir ~/build-linux
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> ~/build-linux
+</span></span><span class="line"><span class="cl">curl https://github.com/microsoft/CBL-Mariner/blob/2.0/SPECS/kernel/config -o mariner-config
+</span></span><span class="line"><span class="cl">cp mariner-config .config
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="编译内核">编译内核</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> ~/linux
+</span></span><span class="line"><span class="cl">make <span class="nb">help</span>
+</span></span><span class="line"><span class="cl">make <span class="nv">O</span><span class="o">=</span>~/build-linux olddefconfig
+</span></span><span class="line"><span class="cl">make <span class="nv">O</span><span class="o">=</span>~/build-linux menuconfig
+</span></span><span class="line"><span class="cl">make <span class="nv">O</span><span class="o">=</span>~/build-linux -j16
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这里的 <code>O=...</code> 可以参考 <a href="https://docs.kernel.org/kbuild/kbuild.html">https://docs.kernel.org/kbuild/kbuild.html</a></p>
+<p><code>menuconfig</code>可以参考 <a href="https://docs.kernel.org/kbuild/kconfig.html#menuconfig">https://docs.kernel.org/kbuild/kconfig.html#menuconfig</a></p>
+<p>在 menuconfig 的时候，记得把 E1000 的驱动选上，后面会用。</p>
+<p>编译成功以后，会在输出的最后面看到一行类似这样的输出</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">Kernel: arch/x86/boot/bzImage is ready
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这个<code>bzImage</code>就是 QEMU 需要的内核文件</p>
+<h1 id="准备磁盘映像文件">准备磁盘映像文件</h1>
+<p>这里的内容主要修改自 Stefan Koch 的 <a href="https://blog.stefan-koch.name/2020/05/31/automation-archlinux-qemu-installation">https://blog.stefan-koch.name/2020/05/31/automation-archlinux-qemu-installation</a></p>
+<p>主要的区别是在 Stefan 的文章中，他的目标是准备一个完整的磁盘文件，然后直接从磁盘启动。
+这里就涉及了 syslinux， initramfs 等和 boot loader 相关的东西。
+因为我们是用 QEMU 直接启动 kernel，这些东西都不需要了。</p>
+<p>主要步骤包括</p>
+<ul>
+<li>准备磁盘的 Raw Image<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup></li>
+<li>通过 arch-chroot 来安装用户态需要的程序</li>
+<li>准备磁盘 qcow2 Image<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup></li>
+</ul>
+<h2 id="补课linux-启动流程">【补课】Linux 启动流程</h2>
+<p>对于 Kernel 而言，除了“操作系统”课程中会讲的最基本的内存管理，进程管理，各种设备的驱动
+（和其他内核黑科技，譬如eBPF）之外，几乎用户日常会用的东西都没有。
+无论是 bash、systemd 或者 glibc，所有这些运行在用户态的东西，都是 kernel 之外，需要用户（或者说
+distro）来提供的。</p>
+<p>Kernel 在完成自己的启动以后，会把系统的控制权交给 init 程序，来完成剩下的用户态的工作。</p>
+<p>在 Kernel 启动以前，加载 Kernel 的工作则是由 boot loader 来完成的。
+相关的关键词包括了 UEFI，grub，security boot 等等。</p>
+<p>而 QEMU 的 Direct Linux Boot 某种意义上就是起到了 boot loader 的作用，直接加载内核和磁盘。</p>
+<p>在 <strong>How Linux Works</strong> <sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup> 这本书的 “Chapter 5: How the Linux Kernel Boots”
+中非常详细的讲述了 Linux 的启动流程。</p>
+<h2 id="准备磁盘-raw-image">准备磁盘 Raw Image</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">mkdir ~/arch-image
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> ~/arch-image
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">image</span><span class="o">=</span>~/arch-image/raw.img
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">qemu-img create -f raw <span class="nv">$image</span> 20G
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Mount the image to an available loopback device, exposing the inner</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># partition structure of the image (as e.g. /dev/loop0p1)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">loop</span><span class="o">=</span><span class="k">$(</span>sudo losetup --show -f -P <span class="nv">$image</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Create a partition and a file system on the device</span>
+</span></span><span class="line"><span class="cl">sudo parted <span class="nv">$loop</span> mklabel msdos
+</span></span><span class="line"><span class="cl">sudo parted -a optimal <span class="nv">$loop</span> mkpart primary 0% 100%
+</span></span><span class="line"><span class="cl">sudo parted <span class="nv">$loop</span> <span class="nb">set</span> <span class="m">1</span> boot on
+</span></span><span class="line"><span class="cl"><span class="nv">loopp</span><span class="o">=</span><span class="si">${</span><span class="nv">loop</span><span class="si">}</span>p1
+</span></span><span class="line"><span class="cl">sudo mkfs.ext4 <span class="nv">$loopp</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>qemu-img</code> 创建的是一个空的磁盘文件。然后通过 <code>losetup</code> 把文件模拟成一个 block device。
+最后用 <code>parted</code> 和 <code>mkfs</code> 来格式化这个虚拟的磁盘。</p>
+<h2 id="arch-chroot">arch-chroot</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> ~/arch-image
+</span></span><span class="line"><span class="cl">curl https://geo.mirror.pkgbuild.com/iso/latest/archlinux-bootstrap-x86_64.tar.gz -o archlinux-bootstrap-x86_64.tar.gz
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">mountpoint</span><span class="o">=</span>/tmp/arch
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">mkdir -p <span class="nv">$mountpoint</span>
+</span></span><span class="line"><span class="cl">sudo mount <span class="nv">$loopp</span> <span class="nv">$mountpoint</span>
+</span></span><span class="line"><span class="cl">sudo tar xf archlinux-bootstrap-x86_64.tar.gz -C <span class="nv">$mountpoint</span> --strip-components <span class="m">1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这样就把 bootstrap 包加载 <code>/tmp/arch</code> 下面。但是在执行<code>arch-chroot</code>之前，还有一件重要的事情。
+因为 bootstrap 的环境里几乎什么工具都没有，主要是没有编辑器，而我又不太会用sed。
+所以需要先用当前系统的编辑器改一下 pacman 的 mirror list。至于具体选哪个mirror，就是个人偏好的问题了。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">vim /tmp/arch/etc/pacman.d/mirrorlist
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在这之后就是相对标准的 Arch Linux 安装流程了，相关内容也可以参考
+<a href="https://wiki.archlinux.org/title/Install_Arch_Linux_from_existing_Linux">https://wiki.archlinux.org/title/Install_Arch_Linux_from_existing_Linux</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo <span class="nv">$mountpoint</span>/bin/arch-chroot <span class="nv">$mountpoint</span> /bin/bash
+</span></span><span class="line"><span class="cl">pacman-key --init
+</span></span><span class="line"><span class="cl">pacman-key --populate
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">pacman -Syu --noconfirm
+</span></span><span class="line"><span class="cl">pacman -S base linux-firmware dhcpcd openssh
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">systemctl <span class="nb">enable</span> dhcpcd
+</span></span><span class="line"><span class="cl">systemctl <span class="nb">enable</span> sshd
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>因为我们这里不需要系统内核，所以只需要装<code>base</code> 和 <code>linux-firmware</code> 包，
+而不需要 <code>linux</code> 包。</p>
+<p>至于 <code>dhcpd</code> 和 <code>openssh</code> 则是为了后面 QEMU 启动起来以后，方便从 Host 机器通过 ssh
+接入到 Guest 机器里面。不需要抱着 QEMU 的 serial console 来执行别的命令。</p>
+<p>这个时候如果愿意，也可以装更多的包，譬如<code>vim</code>, <code>sudo</code> 之类的。不过这些东西，稍后在 QEMU
+启动起来以后再安装也没差。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># Standard Archlinux Setup</span>
+</span></span><span class="line"><span class="cl">ln -sf /usr/share/zoneinfo/UTC /etc/localtime
+</span></span><span class="line"><span class="cl">hwclock --systohc
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> en_US.UTF-8 UTF-8 &gt;&gt; /etc/locale.gen
+</span></span><span class="line"><span class="cl">locale-gen
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="nv">LANG</span><span class="o">=</span>en_US.UTF-8 &gt; /etc/locale.conf
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> arch-qemu &gt; /etc/hostname
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> -e <span class="s1">&#39;127.0.0.1  localhost\n::1  localhost&#39;</span> &gt;&gt; /etc/hosts
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># set a password for root</span>
+</span></span><span class="line"><span class="cl">passwd
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># create a new user</span>
+</span></span><span class="line"><span class="cl">useradd -m sray
+</span></span><span class="line"><span class="cl">passwd sray
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># enable SSH password login</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># do NOT do this in production!</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;PasswordAuthentication yes&#34;</span> &gt; /etc/ssh/sshd_cofing
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">exit</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>除了 <a href="https://wiki.archlinux.org/title/Installation_guide#Configure_the_system">https://wiki.archlinux.org/title/Installation_guide#Configure_the_system</a>
+中提到的几项系统配置以外，主要就是给 root 加密码，不然 serial console 都登陆不进去。
+最后添加了新用户，并且打开了 sshd 的允许密码登录的选项。</p>
+<h2 id="转换成-qcow2-格式">转换成 qcow2 格式</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo umount <span class="nv">$mountpoint</span>
+</span></span><span class="line"><span class="cl">sudo losetup -d <span class="nv">$loop</span>
+</span></span><span class="line"><span class="cl">qemu-img convert -f raw -O qcow2 <span class="nv">$image</span> ~/arch-image/arch.qcow2
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>最后就是退出 chroot 环境，并且清理资源。然后把 raw image 给转换成 QEMU自己的 qcow2 格式</p>
+<h1 id="启动-qemu">启动 QEMU</h1>
+<p>这一部分主要参考了 Chris Gioran 的 <a href="https://radiki.dev/posts/qemu-setup-for-kernel-dev-1">https://radiki.dev/posts/qemu-setup-for-kernel-dev-1</a></p>
+<p>我这里的主要区别是，他的文章中讲了如何加载一个 Ubuntu cloudimg 的磁盘，包括如何配置cloud-init。
+而我是用的前一步准备的 Arch Linux 磁盘。</p>
+<p>我在尝试用 Ubuntu cloudimg 的时候，用的是 22.04 LTS，结果遇到了几个问题。</p>
+<p>一个是磁盘映像里的 fstab 会尝试挂载一个 UEFI 分区，这个会导致系统启动不起来。
+我后来尝试通过 <code>virt-edit</code> 修改了fstab，注释掉 UEFI 分区以后才能正常启动。</p>
+<p>另一个问题是跟cloud-init相关的。Chris 是通过一个iso来初始化用户密码的。
+但是我开始的 kernel 编译参数里，没有编译 CDROM 相关的驱动，导致读不了光盘。
+重新编译 kernel 以后解决了这个问题。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo qemu-system-x86_64 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -cpu host --enable-kvm <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -m <span class="m">2048</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -nographic <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -device e1000,netdev<span class="o">=</span>net0 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -netdev user,id<span class="o">=</span>net0,hostfwd<span class="o">=</span>tcp::5555-:22 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -kernel ~/build-linux/arch/x86/boot/bzImage <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -hda ~/arch-image/arch.qcow2 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -append <span class="s2">&#34;console=ttyS0 init=/sbin/init root=/dev/sda1 rw&#34;</span> 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="-enable-kvm">-enable-kvm</h2>
+<p><code>-cpu host --enable-kvm</code> 这一行不是必选项。主要是利用 kvm 把 Host 机器的 CPU 借给 Guest
+去用，而不是用纯粹的软件模拟的CPU。跑起来会更快一点。</p>
+<h2 id="-m">-m</h2>
+<p><code>-m 2048</code> 就是分配给 Guest 2G 内存。</p>
+<h2 id="-nographic">-nographic</h2>
+<p>因为系统是跑在命令行里的，不需要 QEMU 的 UI。</p>
+<h2 id="-device-和--netdev">-device 和 -netdev</h2>
+<p><code>-device e1000,netdev=net0</code> 是给机器加上了一个类型为 e1000 的，名字叫 net0 的网卡。</p>
+<p><code>-netdev user,id=net0,hostfwd=tcp::5555-:22</code> 是说这个 net0 的网卡上的 TCP 22 端口会被映射到
+Host 机器的 5555 端口上。</p>
+<p>这样机器启动之后，就可以从外面通过 SSH 来使用这个 VM 了。</p>
+<h2 id="-kernel-和--hda">-kernel 和 -hda</h2>
+<p><code>-kernel</code> 和 <code>-hda</code> 分别指向了之前 kernel 文件和磁盘文件。</p>
+<h2 id="-append">-append</h2>
+<p><code>-append</code> 里的东西，是提供给 kernel 的命令行参数。
+完整的说明可以参考 <a href="https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html">https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html</a></p>
+<p><code>console=ttyS0</code> 相当于把当前的命令行界面做成了serial console，
+这样可以在qemu的命令行界面里看到 kernel 的各种输出信息。
+也可以通过 serial console 去登录系统。</p>
+<p><code>init=/sbin/init</code> 就是前面提到的，系统启动后把控制权交给 init 程序，里的init。
+在实践中，这里会指向 systemd。但是其实这个 init 可以是任何可执行文件。
+Hello-world 也可以，无非就是后面会 panic。</p>
+<p><code>root=/dev/sda1 rw</code> 是说把 <code>/dev/sda1</code> 给 mount 到 <code>/</code> 上面去，并且可读可写。</p>
+<h2 id="退出-qemu">退出 QEMU</h2>
+<p>如果一切顺利的话，稍等几秒钟，命令行里刷完了启动信息以后，应该就提示登录了。
+用之前的root账号或者新建的账号，都可以从 qemu 的命令行界面里登录进去了。</p>
+<p>我之前从外面用 SSH 访问的时候，遇到了一些问题。后来发现是网卡驱动没装。
+建议是把 E1000 的相关驱动做成 build-in module，主要是方便。</p>
+<p>在测试完 kernel 以后，可能遇到的问题是：<strong>怎么从 QEMU 里退出来</strong>。</p>
+<p>答案是 <code>ctrl-a x</code>。</p>
+<p>更多的操作参考： <a href="https://www.qemu.org/docs/master/system/mux-chardev.html">https://www.qemu.org/docs/master/system/mux-chardev.html</a> 譬如说
+<code>ctrl-a c</code> 可以进入 QEMU 的命令模式</p>
+<p>不知道是不是我的 QEMU 的版本的问题，在 QEMU 退出以后，我的当前命令行的有些控制字符的处理会有问题。
+解决方案是执行一下<code>tset</code>（注意，不是test）。</p>
+<h1 id="更多">更多</h1>
+<h2 id="用-gdb-调试-kernel">用 GDB 调试 kernel</h2>
+<p><a href="https://nickdesaulniers.github.io/blog/2018/10/24/booting-a-custom-linux-kernel-in-qemu-and-debugging-it-with-gdb">https://nickdesaulniers.github.io/blog/2018/10/24/booting-a-custom-linux-kernel-in-qemu-and-debugging-it-with-gdb</a></p>
+<h2 id="加载基于-buzybox-的-initramfs">加载基于 Buzybox 的 initramfs</h2>
+<p><a href="https://blog.jm233333.com/linux-kernel/build-and-run-a-tiny-linux-kernel-on-qemu/#ramfs-rootfs-and-initramfs-optional">https://blog.jm233333.com/linux-kernel/build-and-run-a-tiny-linux-kernel-on-qemu/#ramfs-rootfs-and-initramfs-optional</a></p>
+<h2 id="可是-arch-linux-不支持-arm">可是 Arch Linux 不支持 ARM</h2>
+<p>LFS please. Or try manjaro.</p>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p><a href="https://xkcd.com/1168/">https://xkcd.com/1168/</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2">
+<p><a href="https://en.wikipedia.org/wiki/Menuconfig">https://en.wikipedia.org/wiki/Menuconfig</a>&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3">
+<p><a href="https://en.wikipedia.org/wiki/IMG_(file_format)">https://en.wikipedia.org/wiki/IMG_(file_format)</a>&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:4">
+<p><a href="https://en.wikipedia.org/wiki/Qcow">https://en.wikipedia.org/wiki/Qcow</a>&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:5">
+<p><a href="https://nostarch.com/howlinuxworks3">How Linux Works</a>,
+What Every Superuser Should Know by Brian Ward&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">srayuws</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2023-12-21
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/graphic-calculator-story/">
+            <span class="next-text nav-default">【转】图形计算器诞生记</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://yygq.srayu.ws/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2021 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>srayuws</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
